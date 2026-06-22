@@ -1,0 +1,822 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-backend
+    namespace: monitoring
+    resourceVersion: "175232977"
+    uid: dcaae880-e759-4148-998a-8c79560bfed3
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Delete
+      whenScaled: Delete
+    podManagementPolicy: Parallel
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: backend
+        app.kubernetes.io/instance: loki
+        app.kubernetes.io/name: loki
+    serviceName: loki-backend-headless
+    template:
+      metadata:
+        annotations:
+          checksum/config: 57e0f9191b08c55c51419ffa60e593ef554a03f382a5cc5ff3ec311424d846b0
+          kubectl.kubernetes.io/default-container: loki
+          kubectl.kubernetes.io/restartedAt: "2025-12-03T22:17:07+02:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: backend
+          app.kubernetes.io/instance: loki
+          app.kubernetes.io/name: loki
+          app.kubernetes.io/part-of: memberlist
+          app.kubernetes.io/version: 3.5.0
+          helm.sh/chart: loki-6.40.0
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: backend
+              topologyKey: kubernetes.io/hostname
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - -config.file=/etc/loki/config/config.yaml
+          - -target=backend
+          - -legacy-read-mode=false
+          image: docker.io/grafana/loki:3.5.0
+          imagePullPolicy: IfNotPresent
+          name: loki
+          ports:
+          - containerPort: 3100
+            name: http-metrics
+            protocol: TCP
+          - containerPort: 9095
+            name: grpc
+            protocol: TCP
+          - containerPort: 7946
+            name: http-memberlist
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3Gi
+            requests:
+              cpu: 500m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/loki/config
+            name: config
+          - mountPath: /etc/loki/runtime-config
+            name: runtime-config
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /var/loki
+            name: data
+          - mountPath: /rules
+            name: sc-rules-volume
+        - env:
+          - name: METHOD
+            value: WATCH
+          - name: LABEL
+            value: loki_rule
+          - name: FOLDER
+            value: /rules
+          - name: RESOURCE
+            value: both
+          - name: WATCH_SERVER_TIMEOUT
+            value: "60"
+          - name: WATCH_CLIENT_TIMEOUT
+            value: "60"
+          - name: LOG_LEVEL
+            value: INFO
+          image: kiwigrid/k8s-sidecar:1.30.3
+          imagePullPolicy: IfNotPresent
+          name: loki-sc-rules
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /rules
+            name: sc-rules-volume
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 10001
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 300
+        volumes:
+        - emptyDir: {}
+          name: tmp
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: config.yaml
+              path: config.yaml
+            name: loki
+          name: config
+        - configMap:
+            defaultMode: 420
+            name: loki-runtime
+          name: runtime-config
+        - emptyDir: {}
+          name: sc-rules-volume
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 2
+    collisionCount: 0
+    currentReplicas: 2
+    currentRevision: loki-backend-8dc79894c
+    observedGeneration: 2
+    readyReplicas: 2
+    replicas: 2
+    updateRevision: loki-backend-8dc79894c
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/component: memcached-chunks-cache
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+      name: memcached-chunks-cache
+    name: loki-chunks-cache
+    namespace: monitoring
+    resourceVersion: "179061040"
+    uid: 5efd3cb8-82e3-4851-a7a0-616becb83e3d
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: Parallel
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: memcached-chunks-cache
+        app.kubernetes.io/instance: loki
+        app.kubernetes.io/name: loki
+        name: memcached-chunks-cache
+    serviceName: loki-chunks-cache
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-12-03T22:17:07+02:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: memcached-chunks-cache
+          app.kubernetes.io/instance: loki
+          app.kubernetes.io/name: loki
+          name: memcached-chunks-cache
+      spec:
+        affinity: {}
+        containers:
+        - args:
+          - -m 8192
+          - --extended=modern,track_sizes
+          - -I 5m
+          - -c 16384
+          - -v
+          - -u 11211
+          image: memcached:1.6.38-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: client
+            timeoutSeconds: 5
+          name: memcached
+          ports:
+          - containerPort: 11211
+            name: client
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            tcpSocket:
+              port: client
+            timeoutSeconds: 3
+          resources:
+            limits:
+              memory: 9830Mi
+            requests:
+              cpu: 500m
+              memory: 9830Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --memcached.address=localhost:11211
+          - --web.listen-address=0.0.0.0:9150
+          image: prom/memcached-exporter:v0.15.2
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /metrics
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: exporter
+          ports:
+          - containerPort: 9150
+            name: http-metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /metrics
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 11211
+          runAsGroup: 11211
+          runAsNonRoot: true
+          runAsUser: 11211
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 60
+    updateStrategy:
+      type: RollingUpdate
+  status:
+    availableReplicas: 1
+    collisionCount: 0
+    currentReplicas: 1
+    currentRevision: loki-chunks-cache-69f9dc4fd4
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updateRevision: loki-chunks-cache-69f9dc4fd4
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/component: memcached-results-cache
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+      name: memcached-results-cache
+    name: loki-results-cache
+    namespace: monitoring
+    resourceVersion: "179164723"
+    uid: f5522b93-046a-4f62-95e0-4a4d6012e899
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: Parallel
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: memcached-results-cache
+        app.kubernetes.io/instance: loki
+        app.kubernetes.io/name: loki
+        name: memcached-results-cache
+    serviceName: loki-results-cache
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-12-03T22:17:07+02:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: memcached-results-cache
+          app.kubernetes.io/instance: loki
+          app.kubernetes.io/name: loki
+          name: memcached-results-cache
+      spec:
+        affinity: {}
+        containers:
+        - args:
+          - -m 1024
+          - --extended=modern,track_sizes
+          - -I 5m
+          - -c 16384
+          - -v
+          - -u 11211
+          image: memcached:1.6.38-alpine
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: client
+            timeoutSeconds: 5
+          name: memcached
+          ports:
+          - containerPort: 11211
+            name: client
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            tcpSocket:
+              port: client
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        - args:
+          - --memcached.address=localhost:11211
+          - --web.listen-address=0.0.0.0:9150
+          image: prom/memcached-exporter:v0.15.2
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /metrics
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: exporter
+          ports:
+          - containerPort: 9150
+            name: http-metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /metrics
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 3
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 10m
+              memory: 32Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 11211
+          runAsGroup: 11211
+          runAsNonRoot: true
+          runAsUser: 11211
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 60
+    updateStrategy:
+      type: RollingUpdate
+  status:
+    availableReplicas: 1
+    collisionCount: 0
+    currentReplicas: 1
+    currentRevision: loki-results-cache-67fdd9bd9d
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    updateRevision: loki-results-cache-67fdd9bd9d
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    generation: 2
+    labels:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-write
+    namespace: monitoring
+    resourceVersion: "178913201"
+    uid: 82f1b24d-a74c-4383-b77c-1e09b8dd1be6
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: Parallel
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: write
+        app.kubernetes.io/instance: loki
+        app.kubernetes.io/name: loki
+    serviceName: loki-write-headless
+    template:
+      metadata:
+        annotations:
+          checksum/config: 57e0f9191b08c55c51419ffa60e593ef554a03f382a5cc5ff3ec311424d846b0
+          kubectl.kubernetes.io/restartedAt: "2025-12-03T22:17:07+02:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: write
+          app.kubernetes.io/instance: loki
+          app.kubernetes.io/name: loki
+          app.kubernetes.io/part-of: memberlist
+          app.kubernetes.io/version: 3.5.0
+          helm.sh/chart: loki-6.40.0
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: write
+              topologyKey: kubernetes.io/hostname
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - -config.file=/etc/loki/config/config.yaml
+          - -target=write
+          image: docker.io/grafana/loki:3.5.0
+          imagePullPolicy: IfNotPresent
+          name: loki
+          ports:
+          - containerPort: 3100
+            name: http-metrics
+            protocol: TCP
+          - containerPort: 9095
+            name: grpc
+            protocol: TCP
+          - containerPort: 7946
+            name: http-memberlist
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3Gi
+            requests:
+              cpu: 250m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/loki/config
+            name: config
+          - mountPath: /etc/loki/runtime-config
+            name: runtime-config
+          - mountPath: /var/loki
+            name: data
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 10001
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 300
+        volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: config.yaml
+              path: config.yaml
+            name: loki
+          name: config
+        - configMap:
+            defaultMode: 420
+            name: loki-runtime
+          name: runtime-config
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 30Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 2
+    collisionCount: 0
+    currentReplicas: 2
+    currentRevision: loki-write-7f54677b58
+    observedGeneration: 2
+    readyReplicas: 2
+    replicas: 2
+    updateRevision: loki-write-7f54677b58
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:56Z"
+    generation: 19
+    labels:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: alertmanager
+      app.kubernetes.io/version: v0.28.1
+      helm.sh/chart: alertmanager-1.26.0
+    name: prometheus-alertmanager
+    namespace: monitoring
+    resourceVersion: "175775048"
+    uid: 6526a7b6-dcb7-42ac-aacf-57a11d1e1b0f
+  spec:
+    persistentVolumeClaimRetentionPolicy:
+      whenDeleted: Retain
+      whenScaled: Retain
+    podManagementPolicy: OrderedReady
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: prometheus
+        app.kubernetes.io/name: alertmanager
+    serviceName: prometheus-alertmanager-headless
+    template:
+      metadata:
+        annotations:
+          checksum/config: 12ccb9355b3045560b4552c715532e4e2daa145ed71f34411e28bbd5ed1359d6
+          kubectl.kubernetes.io/restartedAt: "2026-06-15T12:54:01+03:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/name: alertmanager
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - --storage.path=/alertmanager
+          - --config.file=/etc/alertmanager/alertmanager.yml
+          env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          image: quay.io/prometheus/alertmanager:v0.28.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: alertmanager
+          ports:
+          - containerPort: 9093
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: http
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+          securityContext:
+            runAsGroup: 65534
+            runAsNonRoot: true
+            runAsUser: 65534
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/alertmanager
+            name: config
+          - mountPath: /alertmanager
+            name: storage
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+        serviceAccount: prometheus-alertmanager
+        serviceAccountName: prometheus-alertmanager
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: prometheus-alertmanager
+          name: config
+    updateStrategy:
+      rollingUpdate:
+        partition: 0
+      type: RollingUpdate
+    volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        creationTimestamp: null
+        name: storage
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 2Gi
+        volumeMode: Filesystem
+      status:
+        phase: Pending
+  status:
+    availableReplicas: 1
+    collisionCount: 0
+    currentReplicas: 1
+    currentRevision: prometheus-alertmanager-59c7d8c5c9
+    observedGeneration: 19
+    readyReplicas: 1
+    replicas: 1
+    updateRevision: prometheus-alertmanager-59c7d8c5c9
+    updatedReplicas: 1
+kind: List
+metadata:
+  resourceVersion: ""

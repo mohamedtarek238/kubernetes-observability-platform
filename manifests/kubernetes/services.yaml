@@ -1,0 +1,913 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: grafana
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-11-10T08:27:55Z"
+    labels:
+      app.kubernetes.io/instance: grafana
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/version: 12.1.1
+      helm.sh/chart: grafana-9.4.4
+    name: grafana
+    namespace: monitoring
+    resourceVersion: "72257289"
+    uid: 37429c3c-1181-4423-8c35-51ab00dd32f7
+  spec:
+    clusterIP: 10.108.19.110
+    clusterIPs:
+    - 10.108.19.110
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: service
+      port: 80
+      protocol: TCP
+      targetPort: grafana
+    selector:
+      app.kubernetes.io/instance: grafana
+      app.kubernetes.io/name: grafana
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-backend
+    namespace: monitoring
+    resourceVersion: "45496855"
+    uid: b7455ad6-eebf-4ab8-912d-4ca2d68f5be1
+  spec:
+    clusterIP: 10.108.142.216
+    clusterIPs:
+    - 10.108.142.216
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      prometheus.io/service-monitor: "false"
+      variant: headless
+    name: loki-backend-headless
+    namespace: monitoring
+    resourceVersion: "45496833"
+    uid: 06fcae6d-44a9-42f5-bba0-0ce745fd39fc
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - appProtocol: tcp
+      name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: canary
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-canary
+    namespace: monitoring
+    resourceVersion: "45496859"
+    uid: 56a6a612-971b-4cf9-a746-ac5dfac19d14
+  spec:
+    clusterIP: 10.96.161.224
+    clusterIPs:
+    - 10.96.161.224
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3500
+      protocol: TCP
+      targetPort: http-metrics
+    selector:
+      app.kubernetes.io/component: canary
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: memcached-chunks-cache
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-chunks-cache
+    namespace: monitoring
+    resourceVersion: "45496821"
+    uid: fccfc6fb-573c-4e30-aac0-3261f86ef533
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: memcached-client
+      port: 11211
+      protocol: TCP
+      targetPort: 11211
+    - name: http-metrics
+      port: 9150
+      protocol: TCP
+      targetPort: 9150
+    selector:
+      app.kubernetes.io/component: memcached-chunks-cache
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: gateway
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+      prometheus.io/service-monitor: "false"
+    name: loki-gateway
+    namespace: monitoring
+    resourceVersion: "45496837"
+    uid: be030013-452c-4bca-b4a6-9e939dad79d5
+  spec:
+    clusterIP: 10.107.6.250
+    clusterIPs:
+    - 10.107.6.250
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 80
+      protocol: TCP
+      targetPort: http-metrics
+    selector:
+      app.kubernetes.io/component: gateway
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-memberlist
+    namespace: monitoring
+    resourceVersion: "45496822"
+    uid: d80c97ab-af24-41d0-a486-bd3d817dfb0d
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: tcp
+      port: 7946
+      protocol: TCP
+      targetPort: http-memberlist
+    selector:
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      prometheus.io/service-monitor: "false"
+    name: loki-query-scheduler-discovery
+    namespace: monitoring
+    resourceVersion: "45496832"
+    uid: 849cac77-f5e0-4089-ab50-94f578e3b31a
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    publishNotReadyAddresses: true
+    selector:
+      app.kubernetes.io/component: backend
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-read
+    namespace: monitoring
+    resourceVersion: "45496823"
+    uid: a7c8e297-a78e-439f-bafd-dd2c03dd32c8
+  spec:
+    clusterIP: 10.106.171.191
+    clusterIPs:
+    - 10.106.171.191
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      prometheus.io/service-monitor: "false"
+      variant: headless
+    name: loki-read-headless
+    namespace: monitoring
+    resourceVersion: "45496835"
+    uid: 941c40e6-e2f8-4138-bc35-d828baa467be
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - appProtocol: tcp
+      name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: memcached-results-cache
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-results-cache
+    namespace: monitoring
+    resourceVersion: "45496829"
+    uid: f071c7dc-8307-4923-8cae-e25e0d97d8ef
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: memcached-client
+      port: 11211
+      protocol: TCP
+      targetPort: 11211
+    - name: http-metrics
+      port: 9150
+      protocol: TCP
+      targetPort: 9150
+    selector:
+      app.kubernetes.io/component: memcached-results-cache
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-write
+    namespace: monitoring
+    resourceVersion: "45496851"
+    uid: f2a27670-0a3e-45b9-b30c-4c81da965e09
+  spec:
+    clusterIP: 10.107.239.226
+    clusterIPs:
+    - 10.107.239.226
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    labels:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      prometheus.io/service-monitor: "false"
+      variant: headless
+    name: loki-write-headless
+    namespace: monitoring
+    resourceVersion: "45496834"
+    uid: ec66df7b-5678-4417-813a-e41f1c6b52ee
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-metrics
+      port: 3100
+      protocol: TCP
+      targetPort: http-metrics
+    - appProtocol: tcp
+      name: grpc
+      port: 9095
+      protocol: TCP
+      targetPort: grpc
+    selector:
+      app.kubernetes.io/component: write
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/name: loki
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"my-app-service","namespace":"monitoring"},"spec":{"ports":[{"name":"http","port":80,"targetPort":8080}],"selector":{"app":"my-app"},"type":"ClusterIP"}}
+    creationTimestamp: "2025-06-30T09:36:34Z"
+    name: my-app-service
+    namespace: monitoring
+    resourceVersion: "17663277"
+    uid: 87b38000-23c1-47a0-960f-175f8b0cdd33
+  spec:
+    clusterIP: 10.104.32.49
+    clusterIPs:
+    - 10.104.32.49
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: my-app
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: otel-collector
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-06-30T09:08:35Z"
+    labels:
+      app.kubernetes.io/component: standalone-collector
+      app.kubernetes.io/instance: otel-collector
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: opentelemetry-collector
+      app.kubernetes.io/version: 0.128.0
+      component: standalone-collector
+      helm.sh/chart: opentelemetry-collector-0.127.2
+    name: otel-collector-opentelemetry-collector
+    namespace: monitoring
+    resourceVersion: "17658055"
+    uid: f34e3630-bf82-4ce3-a413-a2007957d1da
+  spec:
+    clusterIP: 10.98.32.164
+    clusterIPs:
+    - 10.98.32.164
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: jaeger-compact
+      port: 6831
+      protocol: UDP
+      targetPort: 6831
+    - name: jaeger-grpc
+      port: 14250
+      protocol: TCP
+      targetPort: 14250
+    - name: jaeger-thrift
+      port: 14268
+      protocol: TCP
+      targetPort: 14268
+    - appProtocol: grpc
+      name: otlp
+      port: 4317
+      protocol: TCP
+      targetPort: 4317
+    - name: otlp-http
+      port: 4318
+      protocol: TCP
+      targetPort: 4318
+    - name: prometheus
+      port: 8889
+      protocol: TCP
+      targetPort: 8889
+    - name: zipkin
+      port: 9411
+      protocol: TCP
+      targetPort: 9411
+    selector:
+      app.kubernetes.io/instance: otel-collector
+      app.kubernetes.io/name: opentelemetry-collector
+      component: standalone-collector
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: alertmanager
+      app.kubernetes.io/version: v0.28.1
+      helm.sh/chart: alertmanager-1.26.0
+    name: prometheus-alertmanager
+    namespace: monitoring
+    resourceVersion: "47910503"
+    uid: db80ef44-dd34-4037-9fd8-094ac9b09bf1
+  spec:
+    clusterIP: 10.101.100.255
+    clusterIPs:
+    - 10.101.100.255
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 9093
+      protocol: TCP
+      targetPort: http
+    selector:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/name: alertmanager
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: alertmanager
+      app.kubernetes.io/version: v0.28.1
+      helm.sh/chart: alertmanager-1.26.0
+    name: prometheus-alertmanager-headless
+    namespace: monitoring
+    resourceVersion: "47910508"
+    uid: f1886454-9e98-42d8-b9c3-b6d49a952e58
+  spec:
+    clusterIP: None
+    clusterIPs:
+    - None
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 9093
+      protocol: TCP
+      targetPort: http
+    selector:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/name: alertmanager
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kube-state-metrics
+      app.kubernetes.io/part-of: kube-state-metrics
+      app.kubernetes.io/version: 2.17.0
+      helm.sh/chart: kube-state-metrics-6.3.0
+    name: prometheus-kube-state-metrics
+    namespace: monitoring
+    resourceVersion: "47910511"
+    uid: dd883d44-9b2b-40f6-8bb6-a8521ef6645a
+  spec:
+    clusterIP: 10.99.190.80
+    clusterIPs:
+    - 10.99.190.80
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: http
+    selector:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/name: kube-state-metrics
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+      prometheus.io/scrape: "true"
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus-node-exporter
+      app.kubernetes.io/part-of: prometheus-node-exporter
+      app.kubernetes.io/version: 1.9.1
+      helm.sh/chart: prometheus-node-exporter-4.47.3
+    name: prometheus-prometheus-node-exporter
+    namespace: monitoring
+    resourceVersion: "33202584"
+    uid: 276997ac-5fed-4b04-9cc3-abdd598c3d45
+  spec:
+    clusterIP: 10.101.169.118
+    clusterIPs:
+    - 10.101.169.118
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: metrics
+      port: 9100
+      protocol: TCP
+      targetPort: 9100
+    selector:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/name: prometheus-node-exporter
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+      prometheus.io/probe: pushgateway
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus-pushgateway
+      app.kubernetes.io/version: v1.11.1
+      helm.sh/chart: prometheus-pushgateway-3.4.1
+    name: prometheus-prometheus-pushgateway
+    namespace: monitoring
+    resourceVersion: "33202596"
+    uid: 5d223edf-7085-4329-9463-9c3a3b1c2177
+  spec:
+    clusterIP: 10.97.216.42
+    clusterIPs:
+    - 10.97.216.42
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 9091
+      protocol: TCP
+      targetPort: 9091
+    selector:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/name: prometheus-pushgateway
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/part-of: prometheus
+      app.kubernetes.io/version: v3.5.0
+      helm.sh/chart: prometheus-27.37.0
+    name: prometheus-server
+    namespace: monitoring
+    resourceVersion: "47910523"
+    uid: 729ee57e-580e-4e71-9407-1938e77906a8
+  spec:
+    clusterIP: 10.98.48.94
+    clusterIPs:
+    - 10.98.48.94
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: 9090
+    selector:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/name: prometheus
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: zipkin
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-04T13:19:30Z"
+    labels:
+      app.kubernetes.io/instance: zipkin
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: zipkin
+      app.kubernetes.io/version: 3.4.3
+      helm.sh/chart: zipkin-0.3.6
+    name: zipkin
+    namespace: monitoring
+    resourceVersion: "27933085"
+    uid: ebb64cce-e0af-4ab5-a4cc-d9aa45811261
+  spec:
+    clusterIP: 10.107.208.91
+    clusterIPs:
+    - 10.107.208.91
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: http-query
+      port: 9411
+      protocol: TCP
+      targetPort: 9411
+    selector:
+      app.kubernetes.io/instance: zipkin
+      app.kubernetes.io/name: zipkin
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""

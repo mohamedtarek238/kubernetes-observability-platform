@@ -1,0 +1,1095 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  data:
+    datasources.yaml: |
+      apiVersion: 1
+      datasources:
+      - access: proxy
+        isDefault: true
+        name: Prometheus
+        type: prometheus
+        url: http://prometheus-server.monitoring.svc.cluster.local
+      - access: proxy
+        name: loki
+        type: loki
+        url: http://loki-gateway.monitoring.svc.cluster.local
+      - access: proxy
+        name: Zipkin
+        type: zipkin
+        url: http://zipkin.monitoring.svc.cluster.local
+      - access: proxy
+        name: OpenTelemetry
+        type: tempo
+        url: http://otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:4318
+    grafana.ini: |
+      [analytics]
+      check_for_updates = true
+      [grafana_net]
+      url = https://grafana.net
+      [log]
+      mode = console
+      [paths]
+      data = /var/lib/grafana/
+      logs = /var/log/grafana
+      plugins = /var/lib/grafana/plugins
+      provisioning = /etc/grafana/provisioning
+      [securityContext]
+      fsGroup = 472
+      runAsUser = 472
+      [server]
+      domain = ''
+    plugins: digrich-bubblechart-panel,grafana-clock-panel
+  kind: ConfigMap
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: grafana
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-11-10T08:27:55Z"
+    labels:
+      app.kubernetes.io/instance: grafana
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/version: 12.1.1
+      helm.sh/chart: grafana-9.4.4
+    name: grafana
+    namespace: monitoring
+    resourceVersion: "72257283"
+    uid: 69d156d7-4934-46ed-872a-f05b2b43eb21
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIDBTCCAe2gAwIBAgIILYK3TsujpRUwDQYJKoZIhvcNAQELBQAwFTETMBEGA1UE
+      AxMKa3ViZXJuZXRlczAeFw0yNTAyMjUwNzQ1MDZaFw0zNTAyMjMwNzUwMDZaMBUx
+      EzARBgNVBAMTCmt1YmVybmV0ZXMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEK
+      AoIBAQDubAf8nL84mNtunqyyQU819UBf+waXDSeADCxw/2uWvmeqIvolFLeMpith
+      fAfD79d46FEEJL8jpVBEM9r6IbNmKAiYWaYcmiWqAeVIYZLYeqpndVhgTeZX+H3d
+      5l7tKAhRrxaYYVdd9q9G/KzCbZ0cPAOeUExISlrSA8FACUN7qibfcNI4ZISaWnth
+      s+U1WUcb9i6ce79MVfMBNnahaPOHGqTEoktk/pOiLuvGj5b7LhyQLe/gsWe5+vwf
+      4su0B/SvW38etWeSJxGdh2P45KyNPTYTdXARXTIxY1PFjYlZPZqcUlnJPzEu5W4G
+      R1QrHU7tYykpTr1X4iL0kfRjCiURAgMBAAGjWTBXMA4GA1UdDwEB/wQEAwICpDAP
+      BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBR6iwQ0TGy4Kk6BmwKcVSDB2uyzCzAV
+      BgNVHREEDjAMggprdWJlcm5ldGVzMA0GCSqGSIb3DQEBCwUAA4IBAQCq530w9581
+      WfvcqeTYtL5FvVNAa+wz++/bMzvsjtfPh+5HnOCSSa7KyWUH3QI8BdTmWwoIO3j9
+      SBLDvzpbyZ7x+4nK4o8Q3sSLxpHRUvNfF+1la5lAc/gsLirc+Wa0F5Oty8oXKpfr
+      mfTuzW4iWQwhok5G/33BRi9/LT5uwxbHOgRpaQXrd+ARVBWqCVwITVy6JiyFzzat
+      pt5mmA8qVpBfobc4ku8wg/RNCXneOcg52gMJyHXGoMQX9jotzgHHbX5rFYn5g/U+
+      OR5/ZRyVxE0VEDiSPnkdPVLBMzeDOdRaQEjB/tjQQPVFdM7cYbSLuJYebg/z8S3Z
+      bZpN+BhALlk9
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2025-06-23T08:13:50Z"
+    name: kube-root-ca.crt
+    namespace: monitoring
+    resourceVersion: "15869004"
+    uid: 6c1ad7c2-ae01-42c6-901c-48279c798d6c
+- apiVersion: v1
+  data:
+    config.yaml: |2
+
+      auth_enabled: false
+      bloom_build:
+        builder:
+          planner_address: loki-backend-headless.monitoring.svc.cluster.local:9095
+        enabled: false
+      bloom_gateway:
+        client:
+          addresses: dnssrvnoa+_grpc._tcp.loki-backend-headless.monitoring.svc.cluster.local
+        enabled: false
+      chunk_store_config:
+        chunk_cache_config:
+          background:
+            writeback_buffer: 500000
+            writeback_goroutines: 1
+            writeback_size_limit: 500MB
+          default_validity: 0s
+          memcached:
+            batch_size: 4
+            parallelism: 5
+          memcached_client:
+            addresses: dnssrvnoa+_memcached-client._tcp.loki-chunks-cache.monitoring.svc
+            consistent_hash: true
+            max_idle_conns: 72
+            timeout: 2000ms
+      common:
+        compactor_grpc_address: 'loki-backend.monitoring.svc.cluster.local:9095'
+        path_prefix: /var/loki
+        replication_factor: 2
+        storage:
+          s3:
+            access_key_id: admin
+            bucketnames: loki-data
+            endpoint: http://minio2.isfpdomain.com
+            insecure: false
+            region: us-east-1
+            s3forcepathstyle: true
+            secret_access_key: admin1234
+      frontend:
+        scheduler_address: ""
+        tail_proxy_url: ""
+      frontend_worker:
+        scheduler_address: ""
+      index_gateway:
+        mode: simple
+      ingester:
+        chunk_idle_period: 3m
+        chunk_target_size: 1048576
+        max_chunk_age: 1h
+      limits_config:
+        ingestion_burst_size_mb: 128
+        ingestion_rate_mb: 64
+        max_cache_freshness_per_query: 10m
+        per_stream_rate_limit: 64MB
+        query_timeout: 300s
+        reject_old_samples: true
+        reject_old_samples_max_age: 168h
+        split_queries_by_interval: 15m
+        volume_enabled: true
+      memberlist:
+        join_members:
+        - loki-memberlist
+      pattern_ingester:
+        enabled: false
+      query_range:
+        align_queries_with_step: true
+        cache_results: true
+        results_cache:
+          cache:
+            background:
+              writeback_buffer: 500000
+              writeback_goroutines: 1
+              writeback_size_limit: 500MB
+            default_validity: 12h
+            memcached_client:
+              addresses: dnssrvnoa+_memcached-client._tcp.loki-results-cache.monitoring.svc
+              consistent_hash: true
+              timeout: 500ms
+              update_interval: 1m
+      ruler:
+        storage:
+          s3:
+            access_key_id: admin
+            bucketnames: loki-data
+            endpoint: http://minio2.isfpdomain.com
+            insecure: false
+            region: us-east-1
+            s3forcepathstyle: true
+            secret_access_key: admin1234
+          type: s3
+        wal:
+          dir: /var/loki/ruler-wal
+      runtime_config:
+        file: /etc/loki/runtime-config/runtime-config.yaml
+      schema_config:
+        configs:
+        - from: "2024-01-01"
+          index:
+            period: 24h
+            prefix: index_
+          object_store: s3
+          schema: v13
+          store: tsdb
+      server:
+        grpc_listen_port: 9095
+        http_listen_port: 3100
+        http_server_read_timeout: 600s
+        http_server_write_timeout: 600s
+      storage_config:
+        bloom_shipper:
+          working_directory: /var/loki/data/bloomshipper
+        boltdb_shipper:
+          index_gateway_client:
+            server_address: dns+loki-backend-headless.monitoring.svc.cluster.local:9095
+        hedging:
+          at: 250ms
+          max_per_second: 20
+          up_to: 3
+        tsdb_shipper:
+          index_gateway_client:
+            server_address: dns+loki-backend-headless.monitoring.svc.cluster.local:9095
+      tracing:
+        enabled: false
+  kind: ConfigMap
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:20Z"
+    labels:
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki
+    namespace: monitoring
+    resourceVersion: "45496814"
+    uid: ea2c101a-a7fd-46a5-bd5a-e8286b0967b2
+- apiVersion: v1
+  data:
+    nginx.conf: "worker_processes  5;  ## Default: 1\nerror_log  /dev/stderr;\npid
+      \       /tmp/nginx.pid;\nworker_rlimit_nofile 8192;\n\nevents {\n  worker_connections
+      \ 4096;  ## Default: 1024\n}\n\nhttp {\n  client_body_temp_path /tmp/client_temp;\n
+      \ proxy_temp_path       /tmp/proxy_temp_path;\n  fastcgi_temp_path     /tmp/fastcgi_temp;\n
+      \ uwsgi_temp_path       /tmp/uwsgi_temp;\n  scgi_temp_path        /tmp/scgi_temp;\n\n
+      \ client_max_body_size  100M;\n\n  proxy_read_timeout    600; ## 10 minutes\n
+      \ proxy_send_timeout    600;\n  proxy_connect_timeout 600;\n\n  proxy_http_version
+      \   1.1;\n\n  default_type application/octet-stream;\n  log_format   main '$remote_addr
+      - $remote_user [$time_local]  $status '\n        '\"$request\" $body_bytes_sent
+      \"$http_referer\" '\n        '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n
+      \ access_log   /dev/stderr  main;\n\n  sendfile     on;\n  tcp_nopush   on;\n
+      \ resolver kube-dns.kube-system.svc.cluster.local.;\n  \n\n  # if the X-Query-Tags
+      header is empty, set a noop= without a value as empty values are not logged\n
+      \ map $http_x_query_tags $query_tags {\n    \"\"        \"noop=\";            #
+      When header is empty, set noop=\n    default   $http_x_query_tags; # Otherwise,
+      preserve the original value\n  }\n\n  server {\n    listen             8080;\n
+      \   listen             [::]:8080;\n\n    location = / {\n      \n      return
+      200 'OK';\n      auth_basic off;\n    }\n\n    ########################################################\n
+      \   # Configure backend targets\n    location ^~ /ui {\n      \n      proxy_pass
+      \      http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n    }\n\n
+      \   # Distributor\n    location = /api/prom/push {\n      \n      proxy_pass
+      \      http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n    }\n
+      \   location = /loki/api/v1/push {\n      \n      proxy_pass       http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /distributor/ring {\n      \n      proxy_pass       http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /otlp/v1/logs {\n      \n      proxy_pass       http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n\n    # Ingester\n    location = /flush {\n      \n      proxy_pass       http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location ^~ /ingester/ {\n      \n      proxy_pass       http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /ingester {\n      \n      internal;        # to suppress
+      301\n    }\n\n    # Ring\n    location = /ring {\n      \n      proxy_pass       http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n\n    # MemberListKV\n    location = /memberlist {\n      \n      proxy_pass
+      \      http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n    }\n\n
+      \   # Ruler\n    location = /ruler/ring {\n      \n      proxy_pass       http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /api/prom/rules {\n      \n      proxy_pass       http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location ^~ /api/prom/rules/ {\n      \n      proxy_pass       http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /loki/api/v1/rules {\n      \n      proxy_pass       http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location ^~ /loki/api/v1/rules/ {\n      \n      proxy_pass       http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /prometheus/api/v1/alerts {\n      \n      proxy_pass
+      \      http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /prometheus/api/v1/rules {\n      \n      proxy_pass       http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n\n    # Compactor\n    location = /compactor/ring {\n      \n      proxy_pass
+      \      http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /loki/api/v1/delete {\n      \n      proxy_pass       http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /loki/api/v1/cache/generation_numbers {\n      \n      proxy_pass
+      \      http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n\n    # IndexGateway\n    location = /indexgateway/ring {\n      \n      proxy_pass
+      \      http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n\n    # QueryScheduler\n    location = /scheduler/ring {\n      \n      proxy_pass
+      \      http://loki-backend.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n\n    # Config\n    location = /config {\n      \n      proxy_pass       http://loki-write.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n\n\n    # QueryFrontend, Querier\n    location = /api/prom/tail {\n      proxy_set_header
+      Upgrade $http_upgrade;\n      proxy_set_header Connection \"upgrade\";\n      \n
+      \     proxy_pass       http://loki-read.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /loki/api/v1/tail {\n      proxy_set_header Upgrade $http_upgrade;\n
+      \     proxy_set_header Connection \"upgrade\";\n      \n      proxy_pass       http://loki-read.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location ^~ /api/prom/ {\n      \n      proxy_pass       http://loki-read.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /api/prom {\n      \n      internal;        # to suppress
+      301\n    }\n    location ^~ /loki/api/v1/ {\n      # pass custom headers set
+      by Grafana as X-Query-Tags which are logged as key/value pairs in metrics.go
+      log messages\n      proxy_set_header X-Query-Tags \"${query_tags},user=${http_x_grafana_user},dashboard_id=${http_x_dashboard_uid},dashboard_title=${http_x_dashboard_title},panel_id=${http_x_panel_id},panel_title=${http_x_panel_title},source_rule_uid=${http_x_rule_uid},rule_name=${http_x_rule_name},rule_folder=${http_x_rule_folder},rule_version=${http_x_rule_version},rule_source=${http_x_rule_source},rule_type=${http_x_rule_type}\";\n
+      \     \n      proxy_pass       http://loki-read.monitoring.svc.cluster.local:3100$request_uri;\n
+      \   }\n    location = /loki/api/v1 {\n      \n      internal;        # to suppress
+      301\n    }\n  }\n}\n"
+  kind: ConfigMap
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:20Z"
+    labels:
+      app.kubernetes.io/component: gateway
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-gateway
+    namespace: monitoring
+    resourceVersion: "45496815"
+    uid: 734fc8a7-a0b4-41a7-8183-46fb850df934
+- apiVersion: v1
+  data:
+    runtime-config.yaml: |
+      {}
+  kind: ConfigMap
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:20Z"
+    labels:
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-runtime
+    namespace: monitoring
+    resourceVersion: "45496813"
+    uid: 2fe33b9b-b7e0-49a6-8fd5-dd8d67fecdcc
+- apiVersion: v1
+  data:
+    relay: |
+      exporters:
+        debug: {}
+        loki:
+          endpoint: http://loki-gateway/loki/api/v1/push
+          retry_on_failure:
+            enabled: true
+            initial_interval: 5s
+            max_elapsed_time: 300s
+            max_interval: 30s
+          sending_queue:
+            enabled: true
+            num_consumers: 10
+            queue_size: 500
+        prometheus:
+          endpoint: 0.0.0.0:8889
+        zipkin:
+          endpoint: http://zipkin:9411/api/v2/spans
+      extensions:
+        health_check:
+          endpoint: ${env:MY_POD_IP}:13133
+      processors:
+        batch: {}
+        memory_limiter:
+          check_interval: 5s
+          limit_percentage: 80
+          spike_limit_percentage: 25
+      receivers:
+        jaeger:
+          protocols:
+            grpc:
+              endpoint: ${env:MY_POD_IP}:14250
+            thrift_compact:
+              endpoint: ${env:MY_POD_IP}:6831
+            thrift_http:
+              endpoint: ${env:MY_POD_IP}:14268
+        otlp:
+          protocols:
+            grpc:
+              endpoint: ${env:MY_POD_IP}:4317
+            http:
+              endpoint: ${env:MY_POD_IP}:4318
+        prometheus:
+          config:
+            scrape_configs:
+            - job_name: opentelemetry-collector
+              scrape_interval: 10s
+              static_configs:
+              - targets:
+                - ${env:MY_POD_IP}:8888
+        zipkin:
+          endpoint: ${env:MY_POD_IP}:9411
+      service:
+        extensions:
+        - health_check
+        pipelines:
+          logs:
+            exporters:
+            - loki
+            - debug
+            processors:
+            - memory_limiter
+            - batch
+            receivers:
+            - otlp
+          metrics:
+            exporters:
+            - debug
+            - prometheus
+            processors:
+            - memory_limiter
+            - batch
+            receivers:
+            - otlp
+          traces:
+            exporters:
+            - zipkin
+            - debug
+            processors:
+            - memory_limiter
+            - batch
+            receivers:
+            - otlp
+        telemetry:
+          metrics:
+            readers:
+            - pull:
+                exporter:
+                  prometheus:
+                    host: ${env:MY_POD_IP}
+                    port: 8888
+  kind: ConfigMap
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: otel-collector
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-06-30T09:08:35Z"
+    labels:
+      app.kubernetes.io/component: standalone-collector
+      app.kubernetes.io/instance: otel-collector
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: opentelemetry-collector
+      app.kubernetes.io/version: 0.128.0
+      helm.sh/chart: opentelemetry-collector-0.127.2
+    name: otel-collector-opentelemetry-collector
+    namespace: monitoring
+    resourceVersion: "17772704"
+    uid: 27b305a9-c356-414d-8767-f16f30c6af6e
+- apiVersion: v1
+  data:
+    alertmanager.yml: |
+      global:
+        resolve_timeout: 5m
+      receivers:
+      - email_configs:
+        - auth_identity: rta-hq@isfpegypt.com
+          #auth_password: "123456"
+          auth_username: rta-hq@isfpegypt.com
+          from: rta-hq@isfpegypt.com
+          send_resolved: true
+          smarthost: mail.isfpegypt.com:25
+          to: HQ-Linux-Admins@isfpegypt.com
+        name: HQ
+      route:
+        group_by:
+        - alertname
+        group_interval: 10s
+        group_wait: 10s
+        receiver: HQ
+        repeat_interval: 1h
+      templates:
+      - /etc/alertmanager/*.tmpl
+  kind: ConfigMap
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: alertmanager
+      app.kubernetes.io/version: v0.28.1
+      helm.sh/chart: alertmanager-1.26.0
+    name: prometheus-alertmanager
+    namespace: monitoring
+    resourceVersion: "175774806"
+    uid: 8137921f-e247-44d5-8abd-ec4bcb0bec20
+- apiVersion: v1
+  data:
+    alerting_rules.yml: |
+      {}
+    alerts: |
+      groups:
+      - interval: 30s
+        name: applicationrules
+        rules:
+        - alert: KafkaBrokerDown
+          annotations:
+            description: One or more Kafka brokers are not in running state.
+            summary: Kafka broker is down
+          expr: sum(kafka_server_BrokerState{state="0"}) > 0
+          for: 10m
+          labels:
+            severity: warning
+        - alert: KafkaUnderReplicatedPartitions
+          annotations:
+            description: One or more Kafka partitions are under-replicated.
+            summary: Kafka under-replicated partitions
+          expr: kafka_server_ReplicaManager_UnderReplicatedPartitions > 0
+          for: 10m
+          labels:
+            severity: warning
+        - alert: KafkaHighConsumerLag
+          annotations:
+            description: Consumer lag exceeded 10k messages.
+            summary: Kafka consumer lag high
+          expr: max(kafka_consumer_lag) > 10000
+          for: 10m
+          labels:
+            severity: warning
+        - alert: RedisInstanceDown
+          annotations:
+            description: Redis exporter reports instance unavailable.
+            summary: Redis instance is down
+          expr: redis_up == 0
+          for: 10m
+          labels:
+            severity: warning
+        - alert: RedisReplicationBroken
+          annotations:
+            description: Redis master has no connected replicas.
+            summary: Redis replication broken
+          expr: redis_replication_role == 1 and redis_connected_slaves == 0
+          for: 10m
+          labels:
+            severity: warning
+        - alert: RedisHighMemoryUsage
+          annotations:
+            description: Redis memory usage above 80%.
+            summary: Redis memory usage high
+          expr: (redis_memory_used_bytes / redis_memory_max_bytes) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+        - alert: HarborJobServiceDown
+          annotations:
+            description: No available replicas for Harbor Job Service.
+            summary: Harbor job service down
+          expr: kube_deployment_status_replicas_available{deployment="harbor-jobservice"}
+            == 0
+          for: 10m
+          labels:
+            severity: critical
+        - alert: HarborGCFailed
+          annotations:
+            description: Last Harbor garbage collection job failed.
+            summary: Harbor GC failed
+          expr: harbor_gc_last_run_status == 0
+          for: 10m
+          labels:
+            severity: warning
+        - alert: KeycloakInstanceDown
+          annotations:
+            description: No available Keycloak replicas.
+            summary: Keycloak instance down
+          expr: kube_deployment_status_replicas_available{deployment=~"keycloak.*"} == 0
+          for: 10m
+          labels:
+            severity: critical
+        - alert: KeycloakLoginFailuresSpike
+          annotations:
+            description: More than 10 failed login attempts in the last 5 minutes.
+            summary: Keycloak login failures spike
+          expr: increase(keycloak_failed_login_attempts_total[5m]) > 10
+          for: 5m
+          labels:
+            severity: warning
+      - name: networkingrules
+        rules:
+        - alert: CoreDNSHighErrorRate
+          annotations:
+            description: More than 5% of DNS queries are failing in CoreDNS over the last
+              5 minutes.
+            summary: High CoreDNS error rate
+          expr: sum(rate(coredns_dns_request_duration_seconds_count{rcode!="NOERROR",rcode!="NXDOMAIN"}[5m]))
+            / sum(rate(coredns_dns_request_duration_seconds_count[5m])) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+        - alert: IngressHighLatency
+          annotations:
+            description: 95th percentile latency for ingress {{ $labels.ingress }} is above
+              1s for the last 10 minutes.
+            summary: High request latency on ingress {{ $labels.ingress }}
+          expr: histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket[5m]))
+            by (le, ingress)) > 1
+          for: 10m
+          labels:
+            severity: warning
+        - alert: ServiceNoEndpoints
+          annotations:
+            description: Service {{ $labels.service }} in namespace {{ $labels.namespace
+              }} has no active endpoints.
+            summary: Service {{ $labels.service }} has no endpoints
+          expr: kube_endpoint_address_available == 0
+          for: 5m
+          labels:
+            severity: critical
+      - name: noderules
+        rules:
+        - alert: HostHighCPUUsage
+          annotations:
+            description: CPU usage > 85% for more than 5 minutes.
+            summary: High CPU usage on {{ $labels.instance }}
+          expr: 100 - (avg by(instance)(irate(node_cpu_seconds_total{mode="idle"}[5m]))
+            * 100) > 85
+          for: 10m
+          labels:
+            severity: critical
+        - alert: HostOutOfMemory
+          annotations:
+            description: Available memory < 15%.
+            summary: Low memory on {{ $labels.instance }}
+          expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 < 15
+          for: 10m
+          labels:
+            severity: critical
+        - alert: DiskUsageHigh
+          annotations:
+            description: Disk usage above 85%.
+            summary: Disk usage high on {{ $labels.instance }}
+          expr: (node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"})
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} * 100 > 85
+          for: 10m
+          labels:
+            severity: critical
+        - alert: NodeNotReady
+          annotations:
+            description: The Kubelet on {{ $labels.node }} has not been reporting Ready
+              status for at least 5 minutes.
+            summary: Node {{ $labels.node }} is not ready
+          expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+          for: 5m
+          labels:
+            severity: critical
+      - name: podrules
+        rules:
+        - alert: PodCrashLooping
+          annotations:
+            description: Pod is restarting > 5 times in the last 10 minutes. Investigate
+              crash loops.
+            summary: Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} restarting
+              too often
+          expr: increase(kube_pod_container_status_restarts_total[10m]) > 5
+          for: 10m
+          labels:
+            severity: warning
+        - alert: PodOOMKilled
+          annotations:
+            description: Container in pod {{ $labels.pod }} was killed due to Out Of Memory.
+            summary: Pod {{ $labels.pod }} OOMKilled in namespace {{ $labels.namespace }}
+          expr: kube_pod_container_status_last_terminated_reason{reason="OOMKilled"} > 0
+          for: 5m
+          labels:
+            severity: critical
+        - alert: PodPendingTooLong
+          annotations:
+            description: Pod in namespace {{ $labels.namespace }} has been pending for more
+              than 15 minutes.
+            summary: Pod {{ $labels.pod }} stuck in Pending state
+          expr: kube_pod_status_phase{phase="Pending"} > 0
+          for: 10m
+          labels:
+            severity: warning
+      - name: securityrules
+        rules:
+        - alert: TooManyFailedLogins
+          annotations:
+            description: '{{ $labels.app }} is seeing >20 failed logins per 5 minutes.'
+            summary: High number of failed logins on {{ $labels.app }}
+          expr: rate(http_requests_total{app=~"keycloak|gitlab",status=~"401|403"}[5m])
+            > 20
+          for: 10m
+          labels:
+            severity: warning
+            team: security
+        - alert: NodeExporterMissing
+          annotations:
+            description: Node {{ $labels.instance }} has not been reporting metrics for
+              more than 5 minutes.
+            summary: Node exporter missing on {{ $labels.instance }}
+          expr: up{job="node-exporter"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            team: sre
+      - name: storagerules
+        rules:
+        - alert: PVCNotBound
+          annotations:
+            description: PVC {{ $labels.persistentvolumeclaim }} is Pending for more than
+              10 minutes.
+            summary: PVC pending/not bound in namespace {{ $labels.namespace }}
+          expr: kube_persistentvolumeclaim_status_phase{phase="Pending"} > 0
+          for: 10m
+          labels:
+            severity: warning
+        - alert: LonghornVolumeDegraded
+          annotations:
+            description: Volume {{ $labels.volume }} in Longhorn is in Degraded state for
+              more than 5 minutes.
+            summary: 'Longhorn volume degraded: {{ $labels.volume }}'
+          expr: longhorn_volume_robustness{robustness="Degraded"} == 1
+          for: 5m
+          labels:
+            severity: warning
+        - alert: LonghornReplicaRebuildFailed
+          annotations:
+            description: Replica rebuild for volume {{ $labels.volume }} failed.
+            summary: Longhorn volume replica rebuild failed
+          expr: longhorn_volume_rebuild_status{status="failed"} == 1
+          for: 5m
+          labels:
+            severity: warning
+        - alert: NodeDiskUsageHigh
+          annotations:
+            description: Disk usage on {{ $labels.instance }} exceeds 85%.
+            summary: High disk usage on node {{ $labels.instance }}
+          expr: (node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} - node_filesystem_free_bytes{fstype!~"tmpfs|overlay"})
+            / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"} > 0.85
+          for: 10m
+          labels:
+            severity: critical
+    allow-snippet-annotations: "false"
+    prometheus.yml: |
+      global:
+        evaluation_interval: 1m
+        scrape_interval: 1m
+        scrape_timeout: 10s
+      rule_files:
+      - /etc/config/recording_rules.yml
+      - /etc/config/alerting_rules.yml
+      - /etc/config/rules
+      - /etc/config/alerts
+      - /etc/prometheus-rules/*.yml
+      scrape_configs:
+      - job_name: prometheus
+        static_configs:
+        - targets:
+          - localhost:9090
+      - job_name: otel-collector
+        static_configs:
+        - targets:
+          - otel-collector-opentelemetry-collector.monitoring.svc.cluster.local:8889
+      - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        job_name: kubernetes-apiservers
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - action: keep
+          regex: default;kubernetes;https
+          source_labels:
+          - __meta_kubernetes_namespace
+          - __meta_kubernetes_service_name
+          - __meta_kubernetes_endpoint_port_name
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        job_name: kubernetes-nodes
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - replacement: kubernetes.default.svc:443
+          target_label: __address__
+        - regex: (.+)
+          replacement: /api/v1/nodes/$1/proxy/metrics
+          source_labels:
+          - __meta_kubernetes_node_name
+          target_label: __metrics_path__
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      - bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+        job_name: kubernetes-nodes-cadvisor
+        kubernetes_sd_configs:
+        - role: node
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_node_label_(.+)
+        - replacement: kubernetes.default.svc:443
+          target_label: __address__
+        - regex: (.+)
+          replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+          source_labels:
+          - __meta_kubernetes_node_name
+          target_label: __metrics_path__
+        scheme: https
+        tls_config:
+          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      - honor_labels: true
+        job_name: kubernetes-service-endpoints
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_scrape
+        - action: drop
+          regex: true
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+        - action: replace
+          regex: (https?)
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_scheme
+          target_label: __scheme__
+        - action: replace
+          regex: (.+)
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        - action: replace
+          regex: (.+?)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          source_labels:
+          - __address__
+          - __meta_kubernetes_service_annotation_prometheus_io_port
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_service_annotation_prometheus_io_param_(.+)
+          replacement: __param_$1
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_service_name
+          target_label: service
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_pod_node_name
+          target_label: node
+      - honor_labels: true
+        job_name: kubernetes-service-endpoints-slow
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+        - action: replace
+          regex: (https?)
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_scheme
+          target_label: __scheme__
+        - action: replace
+          regex: (.+)
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        - action: replace
+          regex: (.+?)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          source_labels:
+          - __address__
+          - __meta_kubernetes_service_annotation_prometheus_io_port
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_service_annotation_prometheus_io_param_(.+)
+          replacement: __param_$1
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_service_name
+          target_label: service
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_pod_node_name
+          target_label: node
+        scrape_interval: 5m
+        scrape_timeout: 30s
+      - honor_labels: true
+        job_name: prometheus-pushgateway
+        kubernetes_sd_configs:
+        - role: service
+        relabel_configs:
+        - action: keep
+          regex: pushgateway
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_probe
+      - honor_labels: true
+        job_name: kubernetes-services
+        kubernetes_sd_configs:
+        - role: service
+        metrics_path: /probe
+        params:
+          module:
+          - http_2xx
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_service_annotation_prometheus_io_probe
+        - source_labels:
+          - __address__
+          target_label: __param_target
+        - replacement: blackbox
+          target_label: __address__
+        - source_labels:
+          - __param_target
+          target_label: instance
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - source_labels:
+          - __meta_kubernetes_service_name
+          target_label: service
+      - honor_labels: true
+        job_name: kubernetes-pods
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+        - action: drop
+          regex: true
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+        - action: replace
+          regex: (https?)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+          target_label: __scheme__
+        - action: replace
+          regex: (.+)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        - action: replace
+          regex: (\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})
+          replacement: '[$2]:$1'
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          - __meta_kubernetes_pod_ip
+          target_label: __address__
+        - action: replace
+          regex: (\d+);((([0-9]+?)(\.|$)){4})
+          replacement: $2:$1
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          - __meta_kubernetes_pod_ip
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_annotation_prometheus_io_param_(.+)
+          replacement: __param_$1
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_pod_name
+          target_label: pod
+        - action: drop
+          regex: Pending|Succeeded|Failed|Completed
+          source_labels:
+          - __meta_kubernetes_pod_phase
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_pod_node_name
+          target_label: node
+      - honor_labels: true
+        job_name: kubernetes-pods-slow
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - action: keep
+          regex: true
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scrape_slow
+        - action: replace
+          regex: (https?)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_scheme
+          target_label: __scheme__
+        - action: replace
+          regex: (.+)
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_path
+          target_label: __metrics_path__
+        - action: replace
+          regex: (\d+);(([A-Fa-f0-9]{1,4}::?){1,7}[A-Fa-f0-9]{1,4})
+          replacement: '[$2]:$1'
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          - __meta_kubernetes_pod_ip
+          target_label: __address__
+        - action: replace
+          regex: (\d+);((([0-9]+?)(\.|$)){4})
+          replacement: $2:$1
+          source_labels:
+          - __meta_kubernetes_pod_annotation_prometheus_io_port
+          - __meta_kubernetes_pod_ip
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_annotation_prometheus_io_param_(.+)
+          replacement: __param_$1
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_namespace
+          target_label: namespace
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_pod_name
+          target_label: pod
+        - action: drop
+          regex: Pending|Succeeded|Failed|Completed
+          source_labels:
+          - __meta_kubernetes_pod_phase
+        - action: replace
+          source_labels:
+          - __meta_kubernetes_pod_node_name
+          target_label: node
+        scrape_interval: 5m
+        scrape_timeout: 30s
+      alerting:
+        alertmanagers:
+          - static_configs:
+            - targets:
+              - prometheus-alertmanager.monitoring.svc:9093
+    recording_rules.yml: |
+      {}
+    rules: |
+      {}
+  kind: ConfigMap
+  metadata:
+    annotations:
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    labels:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/part-of: prometheus
+      app.kubernetes.io/version: v3.5.0
+      helm.sh/chart: prometheus-27.37.0
+    name: prometheus-server
+    namespace: monitoring
+    resourceVersion: "176243807"
+    uid: 0a0cdae6-fdc2-4a37-b072-97e2c5f122c4
+- apiVersion: v1
+  data:
+    test-rules.yml: |
+      groups:
+      - name: test.rules
+        rules:
+        - alert: TestAlert
+          expr: vector(1)
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "This is a test alert"
+            description: "If you see this, Alertmanager email works."
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: "2025-09-02T08:38:34Z"
+    name: test-rules
+    namespace: monitoring
+    resourceVersion: "40733349"
+    uid: 03ecf12a-6481-4aa5-88cb-1dba77862549
+kind: List
+metadata:
+  resourceVersion: ""

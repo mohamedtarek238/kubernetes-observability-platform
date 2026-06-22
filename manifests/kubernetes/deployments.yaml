@@ -1,0 +1,1117 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: grafana
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-11-10T08:27:55Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: grafana
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: grafana
+      app.kubernetes.io/version: 12.1.1
+      helm.sh/chart: grafana-9.4.4
+    name: grafana
+    namespace: monitoring
+    resourceVersion: "179167823"
+    uid: 6bd92288-e250-40e2-9df6-8dc1e4fd9cd4
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: grafana
+        app.kubernetes.io/name: grafana
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/config: 91a900b8ff672f77cd99ff89c4cce1a07ef89994d54c51d4c4e7a5d2b0b208d2
+          checksum/sc-dashboard-provider-config: e70bf6a851099d385178a76de9757bb0bef8299da6d8443602590e44f05fdf24
+          checksum/secret: 255dcce8b67f5c37243e6ea276cff641014c46a38d3b0f5e8dfcd0452562869e
+          kubectl.kubernetes.io/default-container: grafana
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: grafana
+          app.kubernetes.io/name: grafana
+          app.kubernetes.io/version: 12.1.1
+          helm.sh/chart: grafana-9.4.4
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - env:
+          - name: POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          - name: GF_SECURITY_ADMIN_USER
+            valueFrom:
+              secretKeyRef:
+                key: admin-user
+                name: grafana
+          - name: GF_SECURITY_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: admin-password
+                name: grafana
+          - name: GF_INSTALL_PLUGINS
+            valueFrom:
+              configMapKeyRef:
+                key: plugins
+                name: grafana
+          - name: GF_PATHS_DATA
+            value: /var/lib/grafana/
+          - name: GF_PATHS_LOGS
+            value: /var/log/grafana
+          - name: GF_PATHS_PLUGINS
+            value: /var/lib/grafana/plugins
+          - name: GF_PATHS_PROVISIONING
+            value: /etc/grafana/provisioning
+          image: docker.io/grafana/grafana:12.1.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /api/health
+              port: 3000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 30
+          name: grafana
+          ports:
+          - containerPort: 3000
+            name: grafana
+            protocol: TCP
+          - containerPort: 9094
+            name: gossip-tcp
+            protocol: TCP
+          - containerPort: 9094
+            name: gossip-udp
+            protocol: UDP
+          - containerPort: 6060
+            name: profiling
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /api/health
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/grafana/grafana.ini
+            name: config
+            subPath: grafana.ini
+          - mountPath: /var/lib/grafana
+            name: storage
+          - mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+            name: config
+            subPath: datasources.yaml
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 472
+          runAsGroup: 472
+          runAsNonRoot: true
+          runAsUser: 472
+        serviceAccount: grafana
+        serviceAccountName: grafana
+        shareProcessNamespace: false
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: grafana
+          name: config
+        - emptyDir: {}
+          name: storage
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-11-10T08:27:55Z"
+      lastUpdateTime: "2025-11-10T08:29:55Z"
+      message: ReplicaSet "grafana-6458fcf77b" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-22T07:34:23Z"
+      lastUpdateTime: "2026-06-22T07:34:23Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: gateway
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-gateway
+    namespace: monitoring
+    resourceVersion: "179157504"
+    uid: 551034a0-160c-4b17-8fb1-041a92177323
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: gateway
+        app.kubernetes.io/instance: loki
+        app.kubernetes.io/name: loki
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/config: 314f52d027dcca84689bdd0664eda5ac68da33eaed1901a0b9bda8e8092e8f59
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: gateway
+          app.kubernetes.io/instance: loki
+          app.kubernetes.io/name: loki
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: gateway
+              topologyKey: kubernetes.io/hostname
+        containers:
+        - image: docker.io/nginxinc/nginx-unprivileged:1.28-alpine
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+          - containerPort: 8080
+            name: http-metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3Gi
+            requests:
+              cpu: 250m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/nginx
+            name: config
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /docker-entrypoint.d
+            name: docker-entrypoint-d-override
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 101
+          runAsGroup: 101
+          runAsNonRoot: true
+          runAsUser: 101
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: loki-gateway
+          name: config
+        - emptyDir: {}
+          name: tmp
+        - emptyDir: {}
+          name: docker-entrypoint-d-override
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-09-12T07:58:21Z"
+      lastUpdateTime: "2025-09-12T07:58:42Z"
+      message: ReplicaSet "loki-gateway-585c487d7" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-22T07:05:18Z"
+      lastUpdateTime: "2026-06-22T07:05:18Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: loki
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-09-12T07:58:21Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/component: read
+      app.kubernetes.io/instance: loki
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: loki
+      app.kubernetes.io/part-of: memberlist
+      app.kubernetes.io/version: 3.5.0
+      helm.sh/chart: loki-6.40.0
+    name: loki-read
+    namespace: monitoring
+    resourceVersion: "175233030"
+    uid: 763c185d-c800-4a28-83f8-a275318c8daf
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 2
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: read
+        app.kubernetes.io/instance: loki
+        app.kubernetes.io/name: loki
+    strategy:
+      rollingUpdate:
+        maxSurge: 0
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/config: 57e0f9191b08c55c51419ffa60e593ef554a03f382a5cc5ff3ec311424d846b0
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: read
+          app.kubernetes.io/instance: loki
+          app.kubernetes.io/name: loki
+          app.kubernetes.io/part-of: memberlist
+      spec:
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app.kubernetes.io/component: read
+              topologyKey: kubernetes.io/hostname
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - -config.file=/etc/loki/config/config.yaml
+          - -target=read
+          - -legacy-read-mode=false
+          - -common.compactor-grpc-address=loki-backend.monitoring.svc.cluster.local:9095
+          image: docker.io/grafana/loki:3.5.0
+          imagePullPolicy: IfNotPresent
+          name: loki
+          ports:
+          - containerPort: 3100
+            name: http-metrics
+            protocol: TCP
+          - containerPort: 9095
+            name: grpc
+            protocol: TCP
+          - containerPort: 7946
+            name: http-memberlist
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: http-metrics
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: "1"
+              memory: 3Gi
+            requests:
+              cpu: 250m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/loki/config
+            name: config
+          - mountPath: /etc/loki/runtime-config
+            name: runtime-config
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /var/loki
+            name: data
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 10001
+          runAsGroup: 10001
+          runAsNonRoot: true
+          runAsUser: 10001
+        serviceAccount: loki
+        serviceAccountName: loki
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: tmp
+        - emptyDir: {}
+          name: data
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: config.yaml
+              path: config.yaml
+            name: loki
+          name: config
+        - configMap:
+            defaultMode: 420
+            name: loki-runtime
+          name: runtime-config
+  status:
+    availableReplicas: 2
+    conditions:
+    - lastTransitionTime: "2025-09-12T07:58:21Z"
+      lastUpdateTime: "2025-09-12T08:03:02Z"
+      message: ReplicaSet "loki-read-5d4c79c577" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-11T11:22:43Z"
+      lastUpdateTime: "2026-06-11T11:22:43Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 2
+    replicas: 2
+    updatedReplicas: 2
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "11"
+      meta.helm.sh/release-name: otel-collector
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-06-30T09:08:35Z"
+    generation: 11
+    labels:
+      app.kubernetes.io/component: standalone-collector
+      app.kubernetes.io/instance: otel-collector
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: opentelemetry-collector
+      app.kubernetes.io/version: 0.128.0
+      helm.sh/chart: opentelemetry-collector-0.127.2
+    name: otel-collector-opentelemetry-collector
+    namespace: monitoring
+    resourceVersion: "175233072"
+    uid: f0fe72b0-4e74-46de-8f13-a677151fcfb9
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: otel-collector
+        app.kubernetes.io/name: opentelemetry-collector
+        component: standalone-collector
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          checksum/config: 11b6efe4cc79ff2a191d3d4e79b59acb12953602e192b46851608c1a30918917
+          kubectl.kubernetes.io/restartedAt: "2025-07-15T15:24:55+03:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: otel-collector
+          app.kubernetes.io/name: opentelemetry-collector
+          component: standalone-collector
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - --config=/conf/relay.yaml
+          env:
+          - name: MY_POD_IP
+            valueFrom:
+              fieldRef:
+                apiVersion: v1
+                fieldPath: status.podIP
+          image: otel/opentelemetry-collector-contrib:0.128.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 13133
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: opentelemetry-collector
+          ports:
+          - containerPort: 6831
+            name: jaeger-compact
+            protocol: UDP
+          - containerPort: 14250
+            name: jaeger-grpc
+            protocol: TCP
+          - containerPort: 14268
+            name: jaeger-thrift
+            protocol: TCP
+          - containerPort: 4317
+            name: otlp
+            protocol: TCP
+          - containerPort: 4318
+            name: otlp-http
+            protocol: TCP
+          - containerPort: 8889
+            name: prometheus
+            protocol: TCP
+          - containerPort: 9411
+            name: zipkin
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 13133
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources: {}
+          securityContext: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /conf
+            name: opentelemetry-collector-configmap
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: otel-collector-opentelemetry-collector
+        serviceAccountName: otel-collector-opentelemetry-collector
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+            - key: relay
+              path: relay.yaml
+            name: otel-collector-opentelemetry-collector
+          name: opentelemetry-collector-configmap
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-06-30T09:08:35Z"
+      lastUpdateTime: "2025-07-15T12:24:56Z"
+      message: ReplicaSet "otel-collector-opentelemetry-collector-69c88596b8" has
+        successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-14T07:28:37Z"
+      lastUpdateTime: "2026-06-14T07:28:37Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 11
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "5"
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:56Z"
+    generation: 5
+    labels:
+      app.kubernetes.io/component: metrics
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: kube-state-metrics
+      app.kubernetes.io/part-of: kube-state-metrics
+      app.kubernetes.io/version: 2.17.0
+      helm.sh/chart: kube-state-metrics-6.3.0
+    name: prometheus-kube-state-metrics
+    namespace: monitoring
+    resourceVersion: "175233240"
+    uid: 794089d7-764a-4fb3-bbdf-760ec5e2f3c4
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: prometheus
+        app.kubernetes.io/name: kube-state-metrics
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-09-02T09:00:46+03:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: metrics
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: kube-state-metrics
+          app.kubernetes.io/part-of: kube-state-metrics
+          app.kubernetes.io/version: 2.17.0
+          helm.sh/chart: kube-state-metrics-6.3.0
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - args:
+          - --port=8080
+          - --resources=certificatesigningrequests,configmaps,cronjobs,daemonsets,deployments,endpoints,horizontalpodautoscalers,ingresses,jobs,leases,limitranges,mutatingwebhookconfigurations,namespaces,networkpolicies,nodes,persistentvolumeclaims,persistentvolumes,poddisruptionbudgets,pods,replicasets,replicationcontrollers,resourcequotas,secrets,services,statefulsets,storageclasses,validatingwebhookconfigurations,volumeattachments
+          image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.17.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /livez
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: kube-state-metrics
+          ports:
+          - containerPort: 8080
+            name: http
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /readyz
+              port: 8081
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            readOnlyRootFilesystem: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+          seccompProfile:
+            type: RuntimeDefault
+        serviceAccount: prometheus-kube-state-metrics
+        serviceAccountName: prometheus-kube-state-metrics
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-08-17T12:53:54Z"
+      lastUpdateTime: "2025-09-17T07:42:57Z"
+      message: ReplicaSet "prometheus-kube-state-metrics-65868c5cd8" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-14T07:28:40Z"
+      lastUpdateTime: "2026-06-14T07:28:40Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 5
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "4"
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:56Z"
+    generation: 4
+    labels:
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus-pushgateway
+      app.kubernetes.io/version: v1.11.1
+      helm.sh/chart: prometheus-pushgateway-3.4.1
+    name: prometheus-prometheus-pushgateway
+    namespace: monitoring
+    resourceVersion: "175232776"
+    uid: 0476f8c1-3d6a-4ee9-ba9f-b4ed17d7ec5f
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: prometheus
+        app.kubernetes.io/name: prometheus-pushgateway
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2025-09-02T09:00:31+03:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: prometheus-pushgateway
+          app.kubernetes.io/version: v1.11.1
+          helm.sh/chart: prometheus-pushgateway-3.4.1
+      spec:
+        automountServiceAccountToken: true
+        containers:
+        - image: quay.io/prometheus/pushgateway:v1.11.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /-/healthy
+              port: 9091
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: pushgateway
+          ports:
+          - containerPort: 9091
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /-/ready
+              port: 9091
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /data
+            name: storage-volume
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+        serviceAccount: prometheus-prometheus-pushgateway
+        serviceAccountName: prometheus-prometheus-pushgateway
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: storage-volume
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-08-17T12:53:54Z"
+      lastUpdateTime: "2025-09-02T06:02:08Z"
+      message: ReplicaSet "prometheus-prometheus-pushgateway-54976d5478" has successfully
+        progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-14T07:28:35Z"
+      lastUpdateTime: "2026-06-14T07:28:35Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 4
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "16"
+      meta.helm.sh/release-name: prometheus
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-17T12:53:55Z"
+    generation: 16
+    labels:
+      app.kubernetes.io/component: server
+      app.kubernetes.io/instance: prometheus
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: prometheus
+      app.kubernetes.io/part-of: prometheus
+      app.kubernetes.io/version: v3.5.0
+      helm.sh/chart: prometheus-27.37.0
+    name: prometheus-server
+    namespace: monitoring
+    resourceVersion: "178921391"
+    uid: 532636ad-c6f2-4a58-a340-a083e1d60922
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/component: server
+        app.kubernetes.io/instance: prometheus
+        app.kubernetes.io/name: prometheus
+    strategy:
+      type: Recreate
+    template:
+      metadata:
+        annotations:
+          kubectl.kubernetes.io/restartedAt: "2026-06-16T11:45:44+03:00"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/component: server
+          app.kubernetes.io/instance: prometheus
+          app.kubernetes.io/name: prometheus
+          app.kubernetes.io/part-of: prometheus
+          app.kubernetes.io/version: v3.5.0
+          helm.sh/chart: prometheus-27.37.0
+      spec:
+        containers:
+        - args:
+          - --watched-dir=/etc/config
+          - --listen-address=0.0.0.0:8080
+          - --reload-url=http://127.0.0.1:9090/-/reload
+          image: quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: metrics
+              scheme: HTTP
+            initialDelaySeconds: 2
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          name: prometheus-server-configmap-reload
+          ports:
+          - containerPort: 8080
+            name: metrics
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /healthz
+              port: metrics
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/config
+            name: config-volume
+            readOnly: true
+        - args:
+          - --storage.tsdb.retention.time=15d
+          - --config.file=/etc/config/prometheus.yml
+          - --storage.tsdb.path=/data
+          - --web.console.libraries=/etc/prometheus/console_libraries
+          - --web.console.templates=/etc/prometheus/consoles
+          - --web.enable-lifecycle
+          image: quay.io/prometheus/prometheus:v3.5.0
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /-/healthy
+              port: 9090
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 10
+          name: prometheus-server
+          ports:
+          - containerPort: 9090
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /-/ready
+              port: 9090
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 4
+          resources:
+            limits:
+              cpu: "1"
+              memory: 2Gi
+            requests:
+              cpu: 500m
+              memory: 500Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/config
+            name: config-volume
+          - mountPath: /data
+            name: storage-volume
+        dnsPolicy: ClusterFirst
+        enableServiceLinks: true
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 65534
+          runAsGroup: 65534
+          runAsNonRoot: true
+          runAsUser: 65534
+        serviceAccount: prometheus-server
+        serviceAccountName: prometheus-server
+        terminationGracePeriodSeconds: 300
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: prometheus-server
+          name: config-volume
+        - name: storage-volume
+          persistentVolumeClaim:
+            claimName: prometheus-server
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-08-17T12:53:54Z"
+      lastUpdateTime: "2026-06-16T08:46:50Z"
+      message: ReplicaSet "prometheus-server-7fdbd964f9" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-21T19:33:17Z"
+      lastUpdateTime: "2026-06-21T19:33:17Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 16
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      meta.helm.sh/release-name: zipkin
+      meta.helm.sh/release-namespace: monitoring
+    creationTimestamp: "2025-08-04T13:19:30Z"
+    generation: 1
+    labels:
+      app.kubernetes.io/instance: zipkin
+      app.kubernetes.io/managed-by: Helm
+      app.kubernetes.io/name: zipkin
+      app.kubernetes.io/version: 3.4.3
+      helm.sh/chart: zipkin-0.3.6
+    name: zipkin
+    namespace: monitoring
+    resourceVersion: "179161998"
+    uid: 28de15d7-1d82-42f5-bb93-3be92c56f399
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app.kubernetes.io/instance: zipkin
+        app.kubernetes.io/name: zipkin
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        annotations:
+          sidecar.istio.io/inject: "false"
+        creationTimestamp: null
+        labels:
+          app.kubernetes.io/instance: zipkin
+          app.kubernetes.io/name: zipkin
+      spec:
+        automountServiceAccountToken: false
+        containers:
+        - command:
+          - start-zipkin
+          env:
+          - name: STORAGE_TYPE
+            value: mem
+          image: openzipkin/zipkin-slim:3.4.3
+          imagePullPolicy: IfNotPresent
+          name: zipkin
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 9411
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1Gi
+            requests:
+              cpu: 200m
+              memory: 512Mi
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: zipkin
+        serviceAccountName: zipkin
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2025-08-04T13:19:30Z"
+      lastUpdateTime: "2025-08-04T13:20:26Z"
+      message: ReplicaSet "zipkin-56f9d9bf4d" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-06-22T07:17:55Z"
+      lastUpdateTime: "2026-06-22T07:17:55Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    updatedReplicas: 1
+kind: List
+metadata:
+  resourceVersion: ""

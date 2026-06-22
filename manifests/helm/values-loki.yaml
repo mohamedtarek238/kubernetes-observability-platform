@@ -1,0 +1,240 @@
+additionalLabels: {}
+affinity: {}
+alternateConfig: {}
+annotations: {}
+autoscaling:
+  additionalMetrics: []
+  behavior: {}
+  enabled: false
+  maxReplicas: 10
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 80
+clusterRole:
+  annotations: {}
+  clusterRoleBinding:
+    annotations: {}
+    name: ""
+  create: false
+  name: ""
+  rules: []
+command:
+  extraArgs: []
+  name: ""
+config:
+  exporters:
+    debug: {}
+    loki:
+      endpoint: http://loki-gateway/loki/api/v1/push
+      retry_on_failure:
+        enabled: true
+        initial_interval: 5s
+        max_elapsed_time: 300s
+        max_interval: 30s
+      sending_queue:
+        enabled: true
+        num_consumers: 10
+        queue_size: 500
+    prometheus:
+      endpoint: 0.0.0.0:8889
+    zipkin:
+      endpoint: http://zipkin:9411/api/v2/spans
+  extensions:
+    health_check:
+      endpoint: ${env:MY_POD_IP}:13133
+  processors:
+    batch: {}
+    memory_limiter:
+      check_interval: 5s
+      limit_percentage: 80
+      spike_limit_percentage: 25
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: ${env:MY_POD_IP}:4317
+        http:
+          endpoint: ${env:MY_POD_IP}:4318
+  service:
+    extensions:
+    - health_check
+    pipelines:
+      logs:
+        exporters:
+        - loki
+        - debug
+        processors:
+        - memory_limiter
+        - batch
+        receivers:
+        - otlp
+      metrics:
+        exporters:
+        - debug
+        - prometheus
+        processors:
+        - memory_limiter
+        - batch
+        receivers:
+        - otlp
+      traces:
+        exporters:
+        - zipkin
+        - debug
+        processors:
+        - memory_limiter
+        - batch
+        receivers:
+        - otlp
+configMap:
+  create: true
+  existingName: ""
+dnsConfig: {}
+dnsPolicy: ""
+extraContainers: []
+extraEnvs: []
+extraEnvsFrom: []
+extraManifests: []
+extraVolumeMounts: []
+extraVolumes: []
+fullnameOverride: ""
+hostAliases: []
+hostNetwork: false
+image:
+  digest: ""
+  pullPolicy: IfNotPresent
+  repository: otel/opentelemetry-collector-contrib
+  tag: ""
+imagePullSecrets: []
+ingress:
+  additionalIngresses: []
+  enabled: false
+initContainers: []
+internalTelemetryViaOTLP:
+  endpoint: ""
+  headers: []
+  logs:
+    enabled: false
+    endpoint: ""
+    headers: []
+  metrics:
+    enabled: false
+    endpoint: ""
+    headers: []
+  traces:
+    enabled: false
+    endpoint: ""
+    headers: []
+lifecycleHooks: {}
+livenessProbe:
+  httpGet:
+    path: /
+    port: 13133
+mode: deployment
+nameOverride: ""
+namespaceOverride: ""
+networkPolicy:
+  allowIngressFrom: []
+  annotations: {}
+  egressRules: []
+  enabled: false
+  extraIngressRules: []
+nodeSelector: {}
+podAnnotations: {}
+podDisruptionBudget:
+  enabled: false
+podLabels: {}
+podMonitor:
+  enabled: false
+  extraLabels: {}
+  metricsEndpoints:
+  - port: metrics
+podSecurityContext: {}
+ports:
+  metrics:
+    containerPort: 8888
+    enabled: false
+    protocol: TCP
+    servicePort: 8888
+  otlp:
+    appProtocol: grpc
+    containerPort: 4317
+    enabled: true
+    hostPort: 4317
+    protocol: TCP
+    servicePort: 4317
+  otlp-http:
+    containerPort: 4318
+    enabled: true
+    hostPort: 4318
+    protocol: TCP
+    servicePort: 4318
+  prometheus:
+    containerPort: 8889
+    enabled: true
+    hostPort: 8889
+    protocol: TCP
+    servicePort: 8889
+presets:
+  clusterMetrics:
+    enabled: false
+  hostMetrics:
+    enabled: false
+  kubeletMetrics:
+    enabled: false
+  kubernetesAttributes:
+    enabled: false
+    extractAllPodAnnotations: false
+    extractAllPodLabels: false
+  kubernetesEvents:
+    enabled: false
+  logsCollection:
+    enabled: false
+    includeCollectorLogs: false
+    maxRecombineLogSize: 102400
+    storeCheckpoints: false
+priorityClassName: ""
+prometheusRule:
+  defaultRules:
+    enabled: false
+  enabled: false
+  extraLabels: {}
+  groups: []
+readinessProbe:
+  httpGet:
+    path: /
+    port: 13133
+replicaCount: 1
+resources: {}
+revisionHistoryLimit: 10
+rollout:
+  rollingUpdate: {}
+  strategy: RollingUpdate
+schedulerName: ""
+securityContext: {}
+service:
+  annotations: {}
+  type: ClusterIP
+serviceAccount:
+  annotations: {}
+  automountServiceAccountToken: true
+  create: true
+  name: ""
+serviceMonitor:
+  enabled: false
+  extraLabels: {}
+  metricRelabelings: []
+  metricsEndpoints:
+  - port: metrics
+  relabelings: []
+shareProcessNamespace: false
+startupProbe: {}
+statefulset:
+  persistentVolumeClaimRetentionPolicy:
+    enabled: false
+    whenDeleted: Retain
+    whenScaled: Retain
+  podManagementPolicy: Parallel
+  volumeClaimTemplates: []
+tolerations: []
+topologySpreadConstraints: []
+useGOMEMLIMIT: true
